@@ -451,3 +451,8 @@ function jbc_display_manage_table() {
     </table>
     <?php
 }
+
+function jbc_remove_create_submenu() {
+    remove_submenu_page('jb-development', 'jbc-create-customization');
+}
+add_action('admin_menu', 'jbc_remove_create_submenu', 999);
