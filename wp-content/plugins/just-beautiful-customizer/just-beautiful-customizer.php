@@ -24,90 +24,219 @@ function jbc_category_settings_page() {
         wp_die('You do not have permission to access this page.');
     }
 
-    $categories = get_terms(['taxonomy' => 'product_cat', 'hide_empty' => false]);
-    $settings = get_option('jbc_category_customization_settings', []);
+    // Handle form submissions and actions
+    jbc_handle_form_submissions();
 
-    if (isset($_POST['jbc_save_settings'])) {
-        $settings = $_POST['jbc_settings'];
-        foreach ($settings as $cat_id => $data) {
-            $settings[$cat_id]['allow_image'] = isset($data['allow_image']) ? 1 : 0;
-            $settings[$cat_id]['allow_text'] = isset($data['allow_text']) ? 1 : 0;
-            if (isset($data['zones'])) {
-                foreach ($data['zones'] as $index => $zone) {
-                    $settings[$cat_id]['zones'][$index] = [
-                        'name' => sanitize_text_field($zone['name']),
-                        'x' => absint($zone['x']),
-                        'y' => absint($zone['y']),
-                        'width' => absint($zone['width']),
-                        'height' => absint($zone['height'])
-                    ];
-                }
+    ?>
+    <div class="wrap woocommerce">
+        <h1>Product Customizer Settings</h1>
+
+        <!-- Notifications -->
+        <?php do_action('admin_notices'); ?>
+
+        <!-- Section 1: Create New Customization -->
+        <h2>Create New Customization</h2>
+        <?php jbc_display_create_form(); ?>
+
+        <!-- Section 2: Manage Existing Customizations -->
+        <h2>Manage Existing Customizations</h2>
+        <?php jbc_display_manage_table(); ?>
+    </div>
+    <?php
+}
+
+function jbc_handle_form_submissions() {
+    // Handle create new customization
+    if (isset($_POST['jbc_create_customization']) && check_admin_referer('jbc_create_customization_action', 'jbc_nonce')) {
+        $category_id = intval($_POST['jbc_category']);
+        $allow_image = isset($_POST['jbc_allow_image']) ? 1 : 0;
+        $allow_text = isset($_POST['jbc_allow_text']) ? 1 : 0;
+        $zones = [];
+
+        if (!empty($_POST['jbc_zone_name'])) {
+            foreach ($_POST['jbc_zone_name'] as $index => $name) {
+                $zones[] = [
+                    'name' => sanitize_text_field($name),
+                    'x' => absint($_POST['jbc_zone_x'][$index]),
+                    'y' => absint($_POST['jbc_zone_y'][$index]),
+                    'width' => absint($_POST['jbc_zone_width'][$index]),
+                    'height' => absint($_POST['jbc_zone_height'][$index]),
+                ];
             }
         }
-        update_option('jbc_category_customization_settings', $settings);
-        echo '<div class="updated"><p>Settings saved successfully!</p></div>';
+
+        // Save to term meta
+        update_term_meta($category_id, 'jbc_allow_image', $allow_image);
+        update_term_meta($category_id, 'jbc_allow_text', $allow_text);
+        update_term_meta($category_id, 'jbc_zones', $zones);
+
+        // Add success notice
+        add_action('admin_notices', function() use ($category_id) {
+            $category = get_term($category_id, 'product_cat');
+            ?>
+            <div class="notice notice-success is-dismissible">
+                <p>Customization settings created for <?php echo esc_html($category->name); ?>.</p>
+            </div>
+            <?php
+        });
+    }
+
+    // Handle delete action
+    if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['category'])) {
+        $category_id = intval($_GET['category']);
+        if (check_admin_referer('jbc_delete_' . $category_id)) {
+            delete_term_meta($category_id, 'jbc_allow_image');
+            delete_term_meta($category_id, 'jbc_allow_text');
+            delete_term_meta($category_id, 'jbc_zones');
+
+            // Add success notice
+            add_action('admin_notices', function() use ($category_id) {
+                $category = get_term($category_id, 'product_cat');
+                ?>
+                <div class="notice notice-success is-dismissible">
+                    <p>Customization settings deleted for <?php echo esc_html($category->name); ?>.</p>
+                </div>
+                <?php
+            });
+
+            wp_redirect(admin_url('admin.php?page=jbc-product-customizer'));
+            exit;
+        }
+    }
+}
+
+function jbc_display_create_form() {
+    $categories = get_terms([
+        'taxonomy' => 'product_cat',
+        'hide_empty' => false,
+        'meta_query' => [
+            [
+                'key' => 'jbc_allow_image',
+                'compare' => 'NOT EXISTS',
+            ],
+        ],
+    ]);
+
+    if (empty($categories)) {
+        ?>
+        <div class="notice notice-info">
+            <p>All categories already have customization settings.</p>
+        </div>
+        <?php
+        return;
     }
 
     ?>
-    <div class="wrap">
-        <h1>Category Customization Settings</h1>
-        <form method="post">
-            <?php foreach ($categories as $category) : ?>
-                <h2><?php echo esc_html($category->name); ?></h2>
-                <p>
-                    <label>
-                        <input type="checkbox" name="jbc_settings[<?php echo $category->term_id; ?>][allow_image]"
-                            <?php checked(isset($settings[$category->term_id]['allow_image']) && $settings[$category->term_id]['allow_image']); ?>>
-                        Allow Image Upload
-                    </label><br>
-                    <label>
-                        <input type="checkbox" name="jbc_settings[<?php echo $category->term_id; ?>][allow_text]"
-                            <?php checked(isset($settings[$category->term_id]['allow_text']) && $settings[$category->term_id]['allow_text']); ?>>
-                        Allow Text Input
-                    </label>
-                </p>
-                <h3>Placement Zones</h3>
-                <div class="jbc-placement-zones" data-cat-id="<?php echo $category->term_id; ?>">
-                    <?php
-                    $zones = isset($settings[$category->term_id]['zones']) ? $settings[$category->term_id]['zones'] : [];
-                    if (empty($zones)) {
-                        $zones[] = ['name' => '', 'x' => '', 'y' => '', 'width' => '', 'height' => ''];
-                    }
-                    foreach ($zones as $index => $zone) :
-                    ?>
-                        <div class="zone">
-                            <label>Name: <input type="text" name="jbc_settings[<?php echo $category->term_id; ?>][zones][<?php echo $index; ?>][name]" value="<?php echo esc_attr($zone['name']); ?>"></label>
-                            <label>X: <input type="number" min="0" name="jbc_settings[<?php echo $category->term_id; ?>][zones][<?php echo $index; ?>][x]" value="<?php echo esc_attr($zone['x']); ?>"></label>
-                            <label>Y: <input type="number" min="0" name="jbc_settings[<?php echo $category->term_id; ?>][zones][<?php echo $index; ?>][y]" value="<?php echo esc_attr($zone['y']); ?>"></label>
-                            <label>Width: <input type="number" min="0" name="jbc_settings[<?php echo $category->term_id; ?>][zones][<?php echo $index; ?>][width]" value="<?php echo esc_attr($zone['width']); ?>"></label>
-                            <label>Height: <input type="number" min="0" name="jbc_settings[<?php echo $category->term_id; ?>][zones][<?php echo $index; ?>][height]" value="<?php echo esc_attr($zone['height']); ?>"></label>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <button type="button" class="add-zone" data-cat-id="<?php echo $category->term_id; ?>">Add Zone</button>
-            <?php endforeach; ?>
-            <p><input type="submit" name="jbc_save_settings" value="Save Settings" class="button-primary"></p>
-        </form>
-    </div>
+    <form method="post" action="" class="form-table">
+        <?php wp_nonce_field('jbc_create_customization_action', 'jbc_nonce'); ?>
+        <table class="form-table">
+            <tr>
+                <th><label for="jbc_category">Category</label></th>
+                <td>
+                    <select name="jbc_category" id="jbc_category" required>
+                        <?php foreach ($categories as $category) : ?>
+                            <option value="<?php echo esc_attr($category->term_id); ?>">
+                                <?php echo esc_html($category->name); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="description">Select a category to apply customization settings.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Options</th>
+                <td>
+                    <p><label><input type="checkbox" name="jbc_allow_image" value="1"> Allow Image Upload</label></p>
+                    <p class="description">Enable customers to upload images for products in this category.</p>
+                    <p><label><input type="checkbox" name="jbc_allow_text" value="1"> Allow Text Input</label></p>
+                    <p class="description">Enable customers to add text for products in this category.</p>
+                </td>
+            </tr>
+            <tr>
+                <th>Placement Zones</th>
+                <td>
+                    <p class="description">Define areas on the product where customizations can be applied.</p>
+                    <div id="jbc_zones"></div>
+                    <button type="button" id="jbc_add_zone" class="button">Add Zone</button>
+                </td>
+            </tr>
+        </table>
+        <p><input type="submit" name="jbc_create_customization" class="button button-primary" value="Create Customization"></p>
+    </form>
+
     <script>
-    document.querySelectorAll('.add-zone').forEach(button => {
-        button.addEventListener('click', function() {
-            const catId = this.getAttribute('data-cat-id');
-            const container = this.previousElementSibling;
-            const zones = container.querySelectorAll('.zone');
-            const index = zones.length;
-            const newZone = document.createElement('div');
-            newZone.className = 'zone';
-            newZone.innerHTML = `
-                <label>Name: <input type="text" name="jbc_settings[${catId}][zones][${index}][name]"></label>
-                <label>X: <input type="number" min="0" name="jbc_settings[${catId}][zones][${index}][x]"></label>
-                <label>Y: <input type="number" min="0" name="jbc_settings[${catId}][zones][${index}][y]"></label>
-                <label>Width: <input type="number" min="0" name="jbc_settings[${catId}][zones][${index}][width]"></label>
-                <label>Height: <input type="number" min="0" name="jbc_settings[${catId}][zones][${index}][height]"></label>
+        document.getElementById('jbc_add_zone').addEventListener('click', function() {
+            const zonesDiv = document.getElementById('jbc_zones');
+            const index = zonesDiv.children.length;
+            zonesDiv.innerHTML += `
+                <div class="zone" style="margin-bottom: 10px;">
+                    <label>Name: <input type="text" name="jbc_zone_name[${index}]" required></label>
+                    <label>X: <input type="number" name="jbc_zone_x[${index}]" min="0" required></label>
+                    <label>Y: <input type="number" name="jbc_zone_y[${index}]" min="0" required></label>
+                    <label>Width: <input type="number" name="jbc_zone_width[${index}]" min="1" required></label>
+                    <label>Height: <input type="number" name="jbc_zone_height[${index}]" min="1" required></label>
+                    <button type="button" class="button jbc_remove_zone">Remove</button>
+                </div>
             `;
-            container.appendChild(newZone);
+            attachRemoveListeners();
         });
-    });
+
+        function attachRemoveListeners() {
+            document.querySelectorAll('.jbc_remove_zone').forEach(button => {
+                button.removeEventListener('click', removeZone); // Prevent duplicate listeners
+                button.addEventListener('click', removeZone);
+            });
+        }
+
+        function removeZone() {
+            this.parentElement.remove();
+        }
     </script>
+    <?php
+}
+
+function jbc_display_manage_table() {
+    $categories = get_terms([
+        'taxonomy' => 'product_cat',
+        'hide_empty' => false,
+        'meta_query' => [
+            [
+                'key' => 'jbc_allow_image',
+                'compare' => 'EXISTS',
+            ],
+        ],
+    ]);
+
+    if (empty($categories)) {
+        ?>
+        <div class="notice notice-info">
+            <p>No customizations exist yet.</p>
+        </div>
+        <?php
+        return;
+    }
+
+    ?>
+    <table class="wp-list-table widefat fixed striped">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($categories as $category) : ?>
+                <tr>
+                    <td><?php echo esc_html($category->name); ?></td>
+                    <td>
+                        <a href="<?php echo admin_url('admin.php?page=jbc-product-customizer&action=edit&category=' . $category->term_id); ?>" class="button">Edit</a>
+                        <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=jbc-product-customizer&action=delete&category=' . $category->term_id), 'jbc_delete_' . $category->term_id); ?>" 
+                           onclick="return confirm('Are you sure you want to delete customization settings for <?php echo esc_js($category->name); ?>?');" 
+                           class="button">Delete</a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
     <?php
 }
