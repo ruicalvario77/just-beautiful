@@ -492,7 +492,12 @@ function jbc_customization_tab_content() {
 
     // Grab the first category’s zones (assuming one category for now)
     $category_id = !empty($categories) ? $categories[0] : 0;
-    $category_zones = get_term_meta($category_id, 'jbc_zones', true) ?: [];
+    $category_zones = get_term_meta($category_id, 'jbc_zones', true);
+
+    // Ensure $category_zones is an array
+    if (!is_array($category_zones)) {
+        $category_zones = [];
+    }
 
     // Load existing product settings
     $enable_customization = get_post_meta($product_id, '_jbc_enable_customization', true);
@@ -521,10 +526,12 @@ function jbc_customization_tab_content() {
                     <label><?php _e('Allowed Placement Zones', 'just-beautiful-customizer'); ?></label>
                     <div class="jbc-placement-zones">
                         <?php foreach ($category_zones as $index => $zone) : ?>
-                            <label>
-                                <input type="checkbox" name="jbc_allowed_zones[]" value="<?php echo $index; ?>" <?php checked(in_array($index, $allowed_zones)); ?>>
-                                <?php echo esc_html($zone['name']); ?>
-                            </label><br>
+                            <?php if (is_array($zone) && isset($zone['name'])) : ?>
+                                <label>
+                                    <input type="checkbox" name="jbc_allowed_zones[]" value="<?php echo $index; ?>" <?php checked(in_array($index, $allowed_zones)); ?>>
+                                    <?php echo esc_html($zone['name']); ?>
+                                </label><br>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                 </p>
