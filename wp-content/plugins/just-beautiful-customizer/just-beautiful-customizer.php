@@ -516,7 +516,7 @@ function jbc_customization_tab_content() {
     ?>
     <style>
         .jbc-zone-wrapper {
-            margin-left: 150px; /* Counteracts the -150px margin to shift content right */
+            margin-left: 0px; /* Counteracts the -150px margin to shift content right */
             padding: 5px 0;     /* Adds spacing between checkbox rows */
         }
         .jbc-zone-wrapper label {
