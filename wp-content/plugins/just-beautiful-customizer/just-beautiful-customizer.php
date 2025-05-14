@@ -537,7 +537,7 @@ function jbc_customization_tab_content() {
                     <?php if (!empty($category_zones)) { checked($enable_customization, '1'); } ?> 
                     <?php if (empty($category_zones)) { echo 'disabled'; } ?>>
                 <?php if (empty($category_zones)) : ?>
-                    <span class="description" style="margin-left: 10px; color: #666;">
+                    <span class="description" style="margin-left: 10px; color: #666;"><br>
                         <?php _e('Customization cannot be enabled without placement zones.'); ?>
                         <a href="<?php echo admin_url('admin.php?page=jbc-product-customizer'); ?>">
                             <?php _e('Create a category rule'); ?>
