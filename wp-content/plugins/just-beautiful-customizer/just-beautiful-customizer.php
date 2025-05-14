@@ -527,9 +527,10 @@ function jbc_customization_tab_content() {
                     <div class="jbc-placement-zones">
                         <?php foreach ($category_zones as $index => $zone) : ?>
                             <?php if (is_array($zone) && isset($zone['name'])) : ?>
-                                <p>Zone Name: <?php echo esc_html($zone['name']); ?> (Index: <?php echo esc_attr($index); ?>)</p>
-                            <?php else : ?>
-                                <p>Invalid zone data at index <?php echo $index; ?></p>
+                                <label>
+                                    <input type="checkbox" name="jbc_allowed_zones[]" value="<?php echo esc_attr($index); ?>" <?php if (in_array($index, $allowed_zones)) echo 'checked'; ?>>
+                                    <?php echo esc_html($zone['name']); ?>
+                                </label>
                             <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
