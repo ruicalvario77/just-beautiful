@@ -3,7 +3,7 @@
  * Plugin Name: Just Beautiful Customizer
  * Description: A custom plugin to enable product personalization for Just Beautiful.
  * Version: 1.0
- * Author: Rui Calvari
+ * Author: Rui Calvario
  * License: GPL2
  */
 
@@ -23,13 +23,13 @@ function jbc_add_customizer_submenu() {
 add_action('admin_menu', 'jbc_add_customizer_submenu');
 
 /**
- * Add the Create New Custom Rule submenu page
+ * Add the Create New Custom Rule page as a standalone page
  */
 function jbc_add_create_customization_page() {
     add_submenu_page(
-        'jb-development',             // Parent slug
+        null,                         // No parent menu (hidden from menu)
         'Create New Custom Rule',     // Page title
-        'Create New Custom Rule',     // Menu title
+        '',                           // No menu title (not visible in menu)
         'manage_options',             // Capability
         'jbc-create-customization',   // Menu slug
         'jbc_create_customization_page' // Callback function
@@ -85,16 +85,16 @@ function jbc_category_settings_page() {
  * Create new customization page
  */
 function jbc_create_customization_page() {
-    // Log that the function is being called
+    // Debugging logs (commented out unless needed)
+    /*
     error_log('jbc_create_customization_page called');
-
-    // Debug user capabilities (Step 2)
     $user = wp_get_current_user();
     error_log('Current user ID: ' . $user->ID);
     error_log('Has manage_options: ' . (current_user_can('manage_options') ? 'yes' : 'no'));
     echo '<pre>User Capabilities: ';
     print_r($user->allcaps);
     echo '</pre>';
+    */
 
     if (!current_user_can('manage_options')) {
         wp_die('You do not have permission to access this page.');
@@ -460,8 +460,3 @@ function jbc_display_manage_table() {
     </table>
     <?php
 }
-
-function jbc_remove_create_submenu() {
-    remove_submenu_page('jb-development', 'jbc-create-customization');
-}
-add_action('admin_menu', 'jbc_remove_create_submenu', 999);
