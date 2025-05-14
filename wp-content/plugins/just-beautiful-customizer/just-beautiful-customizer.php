@@ -72,9 +72,7 @@ function jbc_category_settings_page() {
 
         <!-- Create New Custom Rule Button -->
         <p>
-            <a href="<?php echo admin_url('admin.php?page=jbc-create-customization'); ?>" class="button button-primary">
-                Create New Custom Rule
-            </a>
+            <a href="<?php echo admin_url('admin.php?page=jbc-create-customization'); ?>" class="button button-primary">Create New Custom Rule</a>
         </p>
 
         <!-- Table of existing rules -->
