@@ -583,7 +583,7 @@ function jbc_add_customize_button() {
         wp_enqueue_style('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/css/customizer.css', array(), '1.0');
         wp_enqueue_script('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/js/customizer.js', array('jquery'), '1.0', true);
 
-        echo '<button id="jbc-customize-button" class="button" data-product-id="' . esc_attr($product->get_id()) . '">Customize</button>';
+        echo '<button type="button" id="jbc-customize-button" class="button" data-product-id="' . esc_attr($product->get_id()) . '">Customize</button>';
 
         echo '<div id="jbc-customization-popup" class="jbc-popup" style="display:none;">';
         echo '<div class="jbc-popup-content">';
