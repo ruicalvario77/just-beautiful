@@ -580,16 +580,67 @@ function jbc_add_customize_button() {
 
     $enable_customization = get_post_meta($product->get_id(), '_jbc_enable_customization', true);
     if ('1' === $enable_customization) {
+        // Get the first category for the product
+        $categories = wp_get_post_terms($product->get_id(), 'product_cat', array('fields' => 'ids'));
+        $category_id = !empty($categories) ? $categories[0] : 0;
+
+        // Get category settings
+        $allow_image = get_term_meta($category_id, 'jbc_allow_image', true);
+        $allow_text = get_term_meta($category_id, 'jbc_allow_text', true);
+        $category_zones = get_term_meta($category_id, 'jbc_zones', true) ?: [];
+
+        // Get allowed zones for the product
+        $allowed_zones_indices = get_post_meta($product->get_id(), '_jbc_allowed_zones', true) ?: [];
+        $allowed_zones = [];
+        foreach ($allowed_zones_indices as $index) {
+            if (isset($category_zones[$index]['name'])) {
+                $allowed_zones[] = $category_zones[$index]['name'];
+            }
+        }
+
+        // Get product image
+        $image_id = $product->get_image_id();
+        $image_src = $image_id ? wp_get_attachment_image_src($image_id, 'full')[0] : wc_placeholder_img_src();
+
+        // Enqueue assets
         wp_enqueue_style('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/css/customizer.css', array(), '1.0');
         wp_enqueue_script('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/js/customizer.js', array('jquery'), '1.0', true);
 
+        // Localize script with settings
+        wp_localize_script('jbc-customizer', 'jbcSettings', [
+            'allow_image' => (bool) $allow_image,
+            'allow_text' => (bool) $allow_text,
+            'allowed_zones' => $allowed_zones,
+            'product_id' => $product->get_id(),
+        ]);
+
+        // Output the Customize button
         echo '<button type="button" id="jbc-customize-button" class="button" data-product-id="' . esc_attr($product->get_id()) . '">Customize</button>';
 
-        echo '<div id="jbc-customization-popup" class="jbc-popup" style="display:none;">';
+        // Output the enhanced popup HTML
+        echo '<div id="jbc-customization-popup" class="jbc-customize-popup" style="display:none;">';
         echo '<div class="jbc-popup-content">';
-        echo '<h2>Customization Popup</h2>';
-        echo '<p>Product ID: ' . esc_html($product->get_id()) . '</p>';
-        echo '<button id="jbc-close-popup">Close</button>';
+        echo '<button class="jbc-close-button">X</button>';
+        echo '<div class="jbc-tools">';
+        echo '<div class="jbc-image-upload" style="display:none;">';
+        echo '<h3>Upload Image</h3>';
+        echo '<button type="button">Upload Image</button>';
+        echo '</div>';
+        echo '<div class="jbc-text-input" style="display:none;">';
+        echo '<h3>Enter Text</h3>';
+        echo '<input type="text" placeholder="Your custom text">';
+        echo '</div>';
+        echo '<div class="jbc-placement-selection">';
+        echo '<h3>Select Placement</h3>';
+        echo '<select id="jbc-placement-select"></select>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="jbc-preview">';
+        echo '<h3>Preview</h3>';
+        echo '<div id="jbc-preview-area">';
+        echo '<img src="' . esc_url($image_src) . '" alt="Product Preview">';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
