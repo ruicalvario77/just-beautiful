@@ -516,7 +516,7 @@ function jbc_customization_tab_content() {
     ?>
     <style>
         .jbc-zone-wrapper {
-            margin-left: 30px; /* Counteracts the -150px margin to shift content right */
+            margin-left: 0px; /* Counteracts the -150px margin to shift content right */
             padding: 5px 0;   /* Adds spacing between checkbox rows */
         }
         .jbc-zone-wrapper label {
@@ -532,19 +532,14 @@ function jbc_customization_tab_content() {
     <div id="jbc_customization_data" class="panel woocommerce_options_panel">
         <div class="options_group">
             <p class="form-field">
-                <!-- Group the label and checkbox together -->
-                <div style="display: flex; align-items: center;">
-                    <label for="jbc_enable_customization" style="margin-right: 10px;"><?php _e('Enable Customization', 'just-beautiful-customizer'); ?></label>
-                    <input type="checkbox" id="jbc_enable_customization" name="jbc_enable_customization" value="1" 
-                        <?php if (!empty($category_zones)) { checked($enable_customization, '1'); } ?> 
-                        <?php if (empty($category_zones)) { echo 'disabled'; } ?>>
-                </div>
-                <!-- Message now appears below -->
+                <label for="jbc_enable_customization"><?php _e('Enable Customization', 'just-beautiful-customizer'); ?></label>
+                <input type="checkbox" id="jbc_enable_customization" name="jbc_enable_customization" value="1" 
+                    <?php if (!empty($category_zones)) { checked($enable_customization, '1'); } ?> 
+                    <?php if (empty($category_zones)) { echo 'disabled'; } ?>>
                 <?php if (empty($category_zones)) : ?>
-                    <span class="description" style="display: block; margin-top: 5px; color: #666;">
+                    <span class="description" style="margin-left: 10px; color: #666;">
                         <?php _e('Customization cannot be enabled without placement zones.'); ?>
-                        <!-- Link now opens in a new tab with target="_blank" -->
-                        <a href="<?php echo admin_url('admin.php?page=jbc-product-customizer'); ?>" target="_blank">
+                        <a href="<?php echo admin_url('admin.php?page=jbc-product-customizer'); ?>">
                             <?php _e('Create a category rule'); ?>
                         </a>
                         <?php _e('to add zones.'); ?>
