@@ -1,6 +1,7 @@
 jQuery(document).ready(function($) {
     // Show popup when Customize button is clicked
-    $('#jbc-customize-button').on('click', function() {
+    $('#jbc-customize-button').on('click', function(event) {
+        event.preventDefault(); // Prevent form submission
         $('#jbc-customization-popup').show();
     });
 
