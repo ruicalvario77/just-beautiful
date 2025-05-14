@@ -7,6 +7,23 @@
  * License: GPL2
  */
 
+ /**
+ * Enqueue admin styles
+ */
+function jbc_enqueue_admin_styles() {
+    // Only load on product edit screens
+    $screen = get_current_screen();
+    if ($screen->id === 'product') {
+        wp_enqueue_style(
+            'jbc-admin-styles',
+            plugin_dir_url(__FILE__) . 'css/admin-styles.css',
+            array(),
+            '1.0'
+        );
+    }
+}
+add_action('admin_enqueue_scripts', 'jbc_enqueue_admin_styles');
+
 /**
  * Add the main Product Customizer submenu page
  */
@@ -490,36 +507,20 @@ function jbc_customization_tab_content() {
     $product = wc_get_product($product_id);
     $categories = wp_get_post_terms($product_id, 'product_cat', array('fields' => 'ids'));
 
-    // Grab the first category’s zones (assuming one category for now)
     $category_id = !empty($categories) ? $categories[0] : 0;
     $category_zones = get_term_meta($category_id, 'jbc_zones', true) ?: [];
 
-    // Load existing product settings
     $enable_customization = get_post_meta($product_id, '_jbc_enable_customization', true);
     $allowed_zones = get_post_meta($product_id, '_jbc_allowed_zones', true) ?: [];
 
     ?>
-    <!-- Inline CSS to ensure visibility -->
-    <style>
-        .jbc-placement-zones {
-            padding-top: 10px; /* Adds space above checkboxes */
-        }
-        .jbc-placement-zones label {
-            display: block; /* Puts each checkbox on its own line */
-            margin-bottom: 5px; /* Adds space between checkboxes */
-        }
-    </style>
-
     <div id="jbc_customization_data" class="panel woocommerce_options_panel">
         <div class="options_group">
             <p class="form-field">
                 <label for="jbc_enable_customization"><?php _e('Enable Customization', 'just-beautiful-customizer'); ?></label>
                 <input type="checkbox" id="jbc_enable_customization" name="jbc_enable_customization" value="1" <?php checked($enable_customization, '1'); ?>>
             </p>
-            <!-- Debugging output (remove after testing) -->
-            <?php
-            echo '<pre>Category Zones: '; print_r($category_zones); echo '</pre>';
-            ?>
+            <?php echo '<pre>Category Zones: '; print_r($category_zones); echo '</pre>'; ?>
             <?php if (!empty($category_zones) && is_array($category_zones)) : ?>
                 <p class="form-field">
                     <label><?php _e('Allowed Placement Zones', 'just-beautiful-customizer'); ?></label>
