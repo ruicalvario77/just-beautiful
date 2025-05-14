@@ -466,3 +466,72 @@ function jbc_display_manage_table() {
     </table>
     <?php
 }
+
+/**
+ * Add Customization tab to WooCommerce product data tabs
+ */
+function jbc_add_customization_tab($tabs) {
+    $tabs['customization'] = array(
+        'label'    => __('Customization', 'just-beautiful-customizer'),
+        'target'   => 'jbc_customization_data',
+        'class'    => array('show_if_simple', 'show_if_variable'),
+        'priority' => 60,
+    );
+    return $tabs;
+}
+add_filter('woocommerce_product_data_tabs', 'jbc_add_customization_tab');
+
+/**
+ * Display content for the Customization tab
+ */
+function jbc_customization_tab_content() {
+    global $post;
+    $product_id = $post->ID;
+    $product = wc_get_product($product_id);
+    $categories = wp_get_post_terms($product_id, 'product_cat', array('fields' => 'ids'));
+
+    // Grab the first category’s zones (assuming one category for now)
+    $category_id = !empty($categories) ? $categories[0] : 0;
+    $category_zones = get_term_meta($category_id, 'jbc_zones', true) ?: [];
+
+    // Load existing product settings
+    $enable_customization = get_post_meta($product_id, '_jbc_enable_customization', true);
+    $allowed_zones = get_post_meta($product_id, '_jbc_allowed_zones', true) ?: [];
+
+    ?>
+    <div id="jbc_customization_data" class="panel woocommerce_options_panel">
+        <div class="options_group">
+            <p class="form-field">
+                <label for="jbc_enable_customization"><?php _e('Enable Customization', 'just-beautiful-customizer'); ?></label>
+                <input type="checkbox" id="jbc_enable_customization" name="jbc_enable_customization" value="1" <?php checked($enable_customization, '1'); ?>>
+            </p>
+            <?php if (!empty($category_zones)) : ?>
+                <p class="form-field">
+                    <label><?php _e('Allowed Placement Zones', 'just-beautiful-customizer'); ?></label>
+                    <?php foreach ($category_zones as $index => $zone) : ?>
+                        <label>
+                            <input type="checkbox" name="jbc_allowed_zones[]" value="<?php echo $index; ?>" <?php checked(in_array($index, $allowed_zones)); ?>>
+                            <?php echo esc_html($zone['name']); ?>
+                        </label><br>
+                    <?php endforeach; ?>
+                </p>
+            <?php else : ?>
+                <p><?php _e('No placement zones defined for this category.', 'just-beautiful-customizer'); ?></p>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php
+}
+add_action('woocommerce_product_data_panels', 'jbc_customization_tab_content');
+
+/**
+ * Save Customization tab data when product is saved
+ */
+function jbc_save_customization_tab_data($post_id) {
+    $enable_customization = isset($_POST['jbc_enable_customization']) ? '1' : '0';
+    update_post_meta($post_id, '_jbc_enable_customization', $enable_customization);
+
+    $allowed_zones = isset($_POST['jbc_allowed_zones']) ? array_map('intval', $_POST['jbc_allowed_zones']) : [];
+    update_post_meta($post_id, '_jbc_allowed_zones', $allowed_zones);
+}
+add_action('woocommerce_process_product_meta', 'jbc_save_customization_tab_data');
