@@ -518,17 +518,15 @@ function jbc_customization_tab_content() {
             <?php if (!empty($category_zones)) : ?>
                 <p class="form-field">
                     <label><?php _e('Allowed Placement Zones', 'just-beautiful-customizer'); ?></label>
-                    <div class="jbc-placement-zones">
-                        <?php foreach ($category_zones as $index => $zone) : ?>
-                            <label>
-                                <input type="checkbox" name="jbc_allowed_zones[]" value="<?php echo $index; ?>" <?php checked(in_array($index, $allowed_zones)); ?>>
-                                <?php echo esc_html($zone['name']); ?>
-                            </label><br>
-                        <?php endforeach; ?>
-                    </div>
+                    <?php foreach ($category_zones as $index => $zone) : ?>
+                        <label>
+                            <input type="checkbox" name="jbc_allowed_zones[]" value="<?php echo $index; ?>" <?php checked(in_array($index, $allowed_zones)); ?>>
+                            <?php echo esc_html($zone['name']); ?>
+                        </label><br>
+                    <?php endforeach; ?>
                 </p>
             <?php else : ?>
-                <p><?php _e('No placement zones defined for this category.', 'just-beautiful-customizer'); ?></p>
+                <p><?php _e('No placement zones defined for this category ##ff0000category.', 'just-beautiful-customizer'); ?></p>
             <?php endif; ?>
         </div>
     </div>
