@@ -584,3 +584,36 @@ function jbc_save_customization_tab_data($post_id) {
     update_post_meta($post_id, '_jbc_allowed_zones', $allowed_zones);
 }
 add_action('woocommerce_process_product_meta', 'jbc_save_customization_tab_data');
+
+/**
+ * Add Customize button and popup on product pages
+ */
+function jbc_add_customize_button() {
+    global $product;
+
+    // Ensure $product is available
+    if (!$product) {
+        return;
+    }
+
+    // Check if customization is enabled for this product
+    $enable_customization = get_post_meta($product->get_id(), '_jbc_enable_customization', true);
+    if ('1' === $enable_customization) {
+        // Enqueue front-end assets
+        wp_enqueue_style('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/css/customizer.css', array(), '1.0');
+        wp_enqueue_script('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/js/customizer.js', array('jquery'), '1.0', true);
+
+        // Output the Customize button
+        echo '<button id="jbc-customize-button" class="button" data-product-id="' . esc_attr($product->get_id()) . '">Customize</button>';
+
+        // Output the popup HTML
+        echo '<div id="jbc-customization-popup" class="jbc-popup" style="display:none;">';
+        echo '<div class="jbc-popup-content">';
+        echo '<h2>Customization Popup</h2>';
+        echo '<p>Product ID: ' . esc_html($product->get_id()) . '</p>';
+        echo '<button id="jbc-close-popup">Close</button>';
+        echo '</div>';
+        echo '</div>';
+    }
+}
+add_action('woocommerce_after_add_to_cart_button', 'jbc_add_customize_button');
