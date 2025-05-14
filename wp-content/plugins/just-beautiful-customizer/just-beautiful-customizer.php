@@ -85,6 +85,17 @@ function jbc_category_settings_page() {
  * Create new customization page
  */
 function jbc_create_customization_page() {
+    // Log that the function is being called
+    error_log('jbc_create_customization_page called');
+
+    // Debug user capabilities (Step 2)
+    $user = wp_get_current_user();
+    error_log('Current user ID: ' . $user->ID);
+    error_log('Has manage_options: ' . (current_user_can('manage_options') ? 'yes' : 'no'));
+    echo '<pre>User Capabilities: ';
+    print_r($user->allcaps);
+    echo '</pre>';
+
     if (!current_user_can('manage_options')) {
         wp_die('You do not have permission to access this page.');
     }
