@@ -3,7 +3,7 @@
  * Plugin Name: Just Beautiful Customizer
  * Description: A custom plugin to enable product personalization for Just Beautiful.
  * Version: 1.0
- * Author: Rui Calvario
+ * Author: Rui Calvari
  * License: GPL2
  */
 
