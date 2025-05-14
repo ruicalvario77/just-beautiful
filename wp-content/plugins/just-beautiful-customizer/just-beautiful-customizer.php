@@ -85,17 +85,6 @@ function jbc_category_settings_page() {
  * Create new customization page
  */
 function jbc_create_customization_page() {
-    // Debugging logs (commented out unless needed)
-    /*
-    error_log('jbc_create_customization_page called');
-    $user = wp_get_current_user();
-    error_log('Current user ID: ' . $user->ID);
-    error_log('Has manage_options: ' . (current_user_can('manage_options') ? 'yes' : 'no'));
-    echo '<pre>User Capabilities: ';
-    print_r($user->allcaps);
-    echo '</pre>';
-    */
-
     if (!current_user_can('manage_options')) {
         wp_die('You do not have permission to access this page.');
     }
@@ -203,7 +192,7 @@ function jbc_edit_customization_page() {
     // Display the edit form with pre-filled data
     ?>
     <div class="wrap woocommerce">
-        <h1>Edit Custom Rule</h1>
+        <h1>Edit Custom Rule for <?php echo esc_html($category->name); ?></h1>
         <?php jbc_display_edit_form($category_id); ?>
     </div>
     <?php
@@ -256,6 +245,7 @@ function jbc_display_create_form() {
         <div class="notice notice-info">
             <p>All categories already have customization settings.</p>
         </div>
+        <p><a href="<?php echo admin_url('admin.php?page=jbc-product-customizer'); ?>" class="button">Back to Settings</a></p>
         <?php
         return;
     }
@@ -295,7 +285,10 @@ function jbc_display_create_form() {
                 </td>
             </tr>
         </table>
-        <p><input type="submit" name="jbc_create_customization" class="button button-primary" value="Create Customization"></p>
+        <p>
+            <input type="submit" name="jbc_create_customization" class="button button-primary" value="Create Customization">
+            <a href="<?php echo admin_url('admin.php?page=jbc-product-customizer'); ?>" class="button">Cancel</a>
+        </p>
     </form>
 
     <script>
@@ -378,7 +371,10 @@ function jbc_display_edit_form($category_id) {
                 </td>
             </tr>
         </table>
-        <p><input type="submit" name="jbc_update_customization" class="button button-primary" value="Update Customization"></p>
+        <p>
+            <input type="submit" name="jbc_update_customization" class="button button-primary" value="Update Customization">
+            <a href="<?php echo admin_url('admin.php?page=jbc-product-customizer'); ?>" class="button">Cancel</a>
+        </p>
     </form>
 
     <script>
@@ -413,7 +409,7 @@ function jbc_display_edit_form($category_id) {
 }
 
 /**
- * Display the manage table
+ * Display the manage table with additional columns
  */
 function jbc_display_manage_table() {
     $categories = get_terms([
@@ -441,13 +437,23 @@ function jbc_display_manage_table() {
         <thead>
             <tr>
                 <th>Category</th>
+                <th>No. of Zones</th>
+                <th>Image Upload</th>
+                <th>Text Input</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($categories as $category) : ?>
+            <?php foreach ($categories as $category) : 
+                $zones = get_term_meta($category->term_id, 'jbc_zones', true) ?: [];
+                $allow_image = get_term_meta($category->term_id, 'jbc_allow_image', true);
+                $allow_text = get_term_meta($category->term_id, 'jbc_allow_text', true);
+            ?>
                 <tr>
                     <td><?php echo esc_html($category->name); ?></td>
+                    <td><?php echo count($zones); ?></td>
+                    <td><?php echo $allow_image ? 'Yes' : 'No'; ?></td>
+                    <td><?php echo $allow_text ? 'Yes' : 'No'; ?></td>
                     <td>
                         <a href="<?php echo admin_url('admin.php?page=jbc-edit-customization&category=' . $category->term_id); ?>" class="button">Edit</a>
                         <a href="<?php echo wp_nonce_url(admin_url('admin.php?page=jbc-product-customizer&action=delete&category=' . $category->term_id), 'jbc_delete_' . $category->term_id); ?>" 
