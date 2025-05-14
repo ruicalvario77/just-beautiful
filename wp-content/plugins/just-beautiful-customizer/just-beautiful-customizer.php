@@ -492,48 +492,28 @@ function jbc_customization_tab_content() {
 
     // Grab the first category’s zones (assuming one category for now)
     $category_id = !empty($categories) ? $categories[0] : 0;
-    $category_zones = get_term_meta($category_id, 'jbc_zones', true);
-
-    // Ensure $category_zones is an array
-    if (!is_array($category_zones)) {
-        $category_zones = [];
-    }
+    $category_zones = get_term_meta($category_id, 'jbc_zones', true) ?: [];
 
     // Load existing product settings
     $enable_customization = get_post_meta($product_id, '_jbc_enable_customization', true);
     $allowed_zones = get_post_meta($product_id, '_jbc_allowed_zones', true) ?: [];
 
     ?>
-    <!-- Inline CSS to fix overlapping -->
-    <style>
-    .jbc-placement-zones {
-        margin-left: 20px;
-    }
-    </style>
-
     <div id="jbc_customization_data" class="panel woocommerce_options_panel">
         <div class="options_group">
             <p class="form-field">
                 <label for="jbc_enable_customization"><?php _e('Enable Customization', 'just-beautiful-customizer'); ?></label>
-                <input type="checkbox" id="jbc_enable_customization" name="jbc_enable_customization" value="1" <?php checked($enable_customization, '1'); ?> <?php echo empty($category_zones) ? 'disabled' : ''; ?>>
-                <?php if (empty($category_zones)) : ?>
-                    <p class="description"><?php _e('Customization cannot be enabled because there are no placement zones defined for this category.', 'just-beautiful-customizer'); ?></p>
-                <?php endif; ?>
+                <input type="checkbox" id="jbc_enable_customization" name="jbc_enable_customization" value="1" <?php checked($enable_customization, '1'); ?>>
             </p>
-
             <?php if (!empty($category_zones)) : ?>
                 <p class="form-field">
                     <label><?php _e('Allowed Placement Zones', 'just-beautiful-customizer'); ?></label>
-                    <div class="jbc-placement-zones">
-                        <?php foreach ($category_zones as $index => $zone) : ?>
-                            <?php if (is_array($zone) && isset($zone['name'])) : ?>
-                                <label>
-                                    <input type="checkbox" name="jbc_allowed_zones[]" value="<?php echo $index; ?>" <?php checked(in_array($index, $allowed_zones)); ?>>
-                                    <?php echo esc_html($zone['name']); ?>
-                                </label><br>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    </div>
+                    <?php foreach ($category_zones as $index => $zone) : ?>
+                        <label>
+                            <input type="checkbox" name="jbc_allowed_zones[]" value="<?php echo $index; ?>" <?php checked(in_array($index, $allowed_zones)); ?>>
+                            <?php echo esc_html($zone['name']); ?>
+                        </label><br>
+                    <?php endforeach; ?>
                 </p>
             <?php else : ?>
                 <p><?php _e('No placement zones defined for this category.', 'just-beautiful-customizer'); ?></p>
