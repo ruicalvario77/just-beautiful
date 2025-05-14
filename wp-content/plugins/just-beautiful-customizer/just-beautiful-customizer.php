@@ -7,11 +7,10 @@
  * License: GPL2
  */
 
- /**
+/**
  * Enqueue admin styles
  */
 function jbc_enqueue_admin_styles() {
-    // Only load on product edit screens
     $screen = get_current_screen();
     if ($screen->id === 'product') {
         wp_enqueue_style(
@@ -29,12 +28,12 @@ add_action('admin_enqueue_scripts', 'jbc_enqueue_admin_styles');
  */
 function jbc_add_customizer_submenu() {
     add_submenu_page(
-        'jb-development',          // Parent menu slug (from JB Development plugin)
-        'Product Customizer Settings', // Page title
-        'Product Customizer',      // Menu title
-        'manage_options',          // Capability (admin access)
-        'jbc-product-customizer',  // Submenu slug
-        'jbc_category_settings_page' // Callback function
+        'jb-development',
+        'Product Customizer Settings',
+        'Product Customizer',
+        'manage_options',
+        'jbc-product-customizer',
+        'jbc_category_settings_page'
     );
 }
 add_action('admin_menu', 'jbc_add_customizer_submenu');
@@ -44,12 +43,12 @@ add_action('admin_menu', 'jbc_add_customizer_submenu');
  */
 function jbc_add_create_customization_page() {
     add_submenu_page(
-        null,                         // No parent menu (hidden from menu)
-        'Create New Custom Rule',     // Page title
-        '',                           // No menu title (not visible in menu)
-        'manage_options',             // Capability
-        'jbc-create-customization',   // Menu slug
-        'jbc_create_customization_page' // Callback function
+        null,
+        'Create New Custom Rule',
+        '',
+        'manage_options',
+        'jbc-create-customization',
+        'jbc_create_customization_page'
     );
 }
 add_action('admin_menu', 'jbc_add_create_customization_page');
@@ -59,12 +58,12 @@ add_action('admin_menu', 'jbc_add_create_customization_page');
  */
 function jbc_add_edit_customization_page() {
     add_submenu_page(
-        null,                         // Hidden from menu
-        'Edit Custom Rule',           // Page title
-        'Edit Custom Rule',           // Menu title
-        'manage_options',             // Capability
-        'jbc-edit-customization',     // Menu slug
-        'jbc_edit_customization_page' // Callback function
+        null,
+        'Edit Custom Rule',
+        'Edit Custom Rule',
+        'manage_options',
+        'jbc-edit-customization',
+        'jbc_edit_customization_page'
     );
 }
 add_action('admin_menu', 'jbc_add_edit_customization_page');
@@ -77,22 +76,15 @@ function jbc_category_settings_page() {
         wp_die('You do not have permission to access this page.');
     }
 
-    // Handle delete action
     jbc_handle_delete_action();
 
     ?>
     <div class="wrap woocommerce">
         <h1>Product Customizer Settings</h1>
-
-        <!-- Notifications -->
         <?php do_action('admin_notices'); ?>
-
-        <!-- Create New Custom Rule Button -->
         <p>
             <a href="<?php echo admin_url('admin.php?page=jbc-create-customization'); ?>" class="button button-primary">Create New Custom Rule</a>
         </p>
-
-        <!-- Table of existing rules -->
         <?php jbc_display_manage_table(); ?>
     </div>
     <?php
@@ -106,7 +98,6 @@ function jbc_create_customization_page() {
         wp_die('You do not have permission to access this page.');
     }
 
-    // Handle form submission for creating a new rule
     if (isset($_POST['jbc_create_customization']) && check_admin_referer('jbc_create_customization_action', 'jbc_nonce')) {
         $category_id = intval($_POST['jbc_category']);
         $allow_image = isset($_POST['jbc_allow_image']) ? 1 : 0;
@@ -125,12 +116,10 @@ function jbc_create_customization_page() {
             }
         }
 
-        // Save to term meta
         update_term_meta($category_id, 'jbc_allow_image', $allow_image);
         update_term_meta($category_id, 'jbc_allow_text', $allow_text);
         update_term_meta($category_id, 'jbc_zones', $zones);
 
-        // Add success notice and redirect
         add_action('admin_notices', function() use ($category_id) {
             $category = get_term($category_id, 'product_cat');
             ?>
@@ -143,7 +132,6 @@ function jbc_create_customization_page() {
         exit;
     }
 
-    // Display the creation form
     ?>
     <div class="wrap woocommerce">
         <h1>Create New Custom Rule</h1>
@@ -171,7 +159,6 @@ function jbc_edit_customization_page() {
         wp_die('Invalid category.');
     }
 
-    // Handle form submission for updating the rule
     if (isset($_POST['jbc_update_customization']) && check_admin_referer('jbc_update_customization_action', 'jbc_nonce')) {
         $allow_image = isset($_POST['jbc_allow_image']) ? 1 : 0;
         $allow_text = isset($_POST['jbc_allow_text']) ? 1 : 0;
@@ -189,12 +176,10 @@ function jbc_edit_customization_page() {
             }
         }
 
-        // Update term meta
         update_term_meta($category_id, 'jbc_allow_image', $allow_image);
         update_term_meta($category_id, 'jbc_allow_text', $allow_text);
         update_term_meta($category_id, 'jbc_zones', $zones);
 
-        // Add success notice and redirect
         add_action('admin_notices', function() use ($category) {
             ?>
             <div class="notice notice-success is-dismissible">
@@ -206,7 +191,6 @@ function jbc_edit_customization_page() {
         exit;
     }
 
-    // Display the edit form with pre-filled data
     ?>
     <div class="wrap woocommerce">
         <h1>Edit Custom Rule for <?php echo esc_html($category->name); ?></h1>
@@ -226,7 +210,6 @@ function jbc_handle_delete_action() {
             delete_term_meta($category_id, 'jbc_allow_text');
             delete_term_meta($category_id, 'jbc_zones');
 
-            // Add success notice
             add_action('admin_notices', function() use ($category_id) {
                 $category = get_term($category_id, 'product_cat');
                 ?>
@@ -516,17 +499,17 @@ function jbc_customization_tab_content() {
     ?>
     <style>
         .jbc-zone-wrapper {
-            margin-left: 30px; /* Counteracts the -150px margin to shift content right */
-            padding: 5px 0;   /* Adds spacing between checkbox rows */
+            margin-left: 30px;
+            padding: 5px 0;
         }
         .jbc-zone-wrapper label {
-            margin: 0;        /* Removes the negative margin */
-            width: auto;      /* Allows natural width */
-            float: none;      /* Prevents floating */
-            display: inline;  /* Keeps label inline with checkbox */
+            margin: 0;
+            width: auto;
+            float: none;
+            display: inline;
         }
         .jbc-zone-wrapper input[type="checkbox"] {
-            margin-right: 5px; /* Adds space between checkbox and label text */
+            margin-right: 5px;
         }
     </style>
     <div id="jbc_customization_data" class="panel woocommerce_options_panel">
@@ -591,22 +574,17 @@ add_action('woocommerce_process_product_meta', 'jbc_save_customization_tab_data'
 function jbc_add_customize_button() {
     global $product;
 
-    // Ensure $product is available
     if (!$product) {
         return;
     }
 
-    // Check if customization is enabled for this product
     $enable_customization = get_post_meta($product->get_id(), '_jbc_enable_customization', true);
     if ('1' === $enable_customization) {
-        // Enqueue front-end assets
         wp_enqueue_style('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/css/customizer.css', array(), '1.0');
         wp_enqueue_script('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/js/customizer.js', array('jquery'), '1.0', true);
 
-        // Output the Customize button
         echo '<button id="jbc-customize-button" class="button" data-product-id="' . esc_attr($product->get_id()) . '">Customize</button>';
 
-        // Output the popup HTML
         echo '<div id="jbc-customization-popup" class="jbc-popup" style="display:none;">';
         echo '<div class="jbc-popup-content">';
         echo '<h2>Customization Popup</h2>';
