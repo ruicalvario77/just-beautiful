@@ -517,23 +517,34 @@ function jbc_customization_tab_content() {
     <style>
         .jbc-zone-wrapper {
             margin-left: 0px; /* Counteracts the -150px margin to shift content right */
-            padding: 5px 0;     /* Adds spacing between checkbox rows */
+            padding: 5px 0;   /* Adds spacing between checkbox rows */
         }
         .jbc-zone-wrapper label {
-            margin: 0;          /* Removes the negative margin */
-            width: auto;        /* Allows natural width */
-            float: none;        /* Prevents floating */
-            display: inline;    /* Keeps label inline with checkbox */
+            margin: 0;        /* Removes the negative margin */
+            width: auto;      /* Allows natural width */
+            float: none;      /* Prevents floating */
+            display: inline;  /* Keeps label inline with checkbox */
         }
         .jbc-zone-wrapper input[type="checkbox"] {
-            margin-right: 5px;  /* Adds space between checkbox and label text */
+            margin-right: 5px; /* Adds space between checkbox and label text */
         }
     </style>
     <div id="jbc_customization_data" class="panel woocommerce_options_panel">
         <div class="options_group">
             <p class="form-field">
                 <label for="jbc_enable_customization"><?php _e('Enable Customization', 'just-beautiful-customizer'); ?></label>
-                <input type="checkbox" id="jbc_enable_customization" name="jbc_enable_customization" value="1" <?php checked($enable_customization, '1'); ?>>
+                <input type="checkbox" id="jbc_enable_customization" name="jbc_enable_customization" value="1" 
+                    <?php if (!empty($category_zones)) { checked($enable_customization, '1'); } ?> 
+                    <?php if (empty($category_zones)) { echo 'disabled'; } ?>>
+                <?php if (empty($category_zones)) : ?>
+                    <span class="description" style="margin-left: 10px; color: #666;">
+                        <?php _e('Customization cannot be enabled without placement zones.'); ?>
+                        <a href="<?php echo admin_url('admin.php?page=jbc-product-customizer'); ?>">
+                            <?php _e('Create a category rule'); ?>
+                        </a>
+                        <?php _e('to add zones.'); ?>
+                    </span>
+                <?php endif; ?>
             </p>
             <?php if (!empty($category_zones) && is_array($category_zones)) : ?>
                 <p class="form-field">
@@ -542,8 +553,12 @@ function jbc_customization_tab_content() {
                         <?php foreach ($category_zones as $index => $zone) : ?>
                             <?php if (is_array($zone) && isset($zone['name'])) : ?>
                                 <div class="jbc-zone-wrapper">
-                                    <input type="checkbox" id="jbc_zone_<?php echo esc_attr($index); ?>" name="jbc_allowed_zones[]" value="<?php echo esc_attr($index); ?>" <?php checked(in_array($index, $allowed_zones)); ?>>
-                                    <label for="jbc_zone_<?php echo esc_attr($index); ?>"><?php echo esc_html($zone['name']); ?></label>
+                                    <input type="checkbox" id="jbc_zone_<?php echo esc_attr($index); ?>" 
+                                           name="jbc_allowed_zones[]" value="<?php echo esc_attr($index); ?>" 
+                                           <?php checked(in_array($index, $allowed_zones)); ?>>
+                                    <label for="jbc_zone_<?php echo esc_attr($index); ?>">
+                                        <?php echo esc_html($zone['name']); ?>
+                                    </label>
                                 </div>
                             <?php endif; ?>
                         <?php endforeach; ?>
