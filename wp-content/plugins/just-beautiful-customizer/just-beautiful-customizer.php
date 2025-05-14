@@ -499,10 +499,14 @@ function jbc_customization_tab_content() {
     $allowed_zones = get_post_meta($product_id, '_jbc_allowed_zones', true) ?: [];
 
     ?>
-    <!-- Inline CSS to prevent overlapping -->
+    <!-- Inline CSS to ensure visibility -->
     <style>
         .jbc-placement-zones {
-            margin-left: 20px; /* Indents the checkboxes */
+            padding-top: 10px; /* Adds space above checkboxes */
+        }
+        .jbc-placement-zones label {
+            display: block; /* Puts each checkbox on its own line */
+            margin-bottom: 5px; /* Adds space between checkboxes */
         }
     </style>
 
@@ -512,23 +516,26 @@ function jbc_customization_tab_content() {
                 <label for="jbc_enable_customization"><?php _e('Enable Customization', 'just-beautiful-customizer'); ?></label>
                 <input type="checkbox" id="jbc_enable_customization" name="jbc_enable_customization" value="1" <?php checked($enable_customization, '1'); ?>>
             </p>
+            <!-- Debugging output (remove after testing) -->
             <?php
             echo '<pre>Category Zones: '; print_r($category_zones); echo '</pre>';
             ?>
-            <?php if (!empty($category_zones)) : ?>
+            <?php if (!empty($category_zones) && is_array($category_zones)) : ?>
                 <p class="form-field">
                     <label><?php _e('Allowed Placement Zones', 'just-beautiful-customizer'); ?></label>
                     <div class="jbc-placement-zones">
                         <?php foreach ($category_zones as $index => $zone) : ?>
-                            <label>
-                                <input type="checkbox" name="jbc_allowed_zones[]" value="<?php echo $index; ?>" <?php checked(in_array($index, $allowed_zones)); ?>>
-                                <?php echo esc_html($zone['name']); ?>
-                            </label><br>
+                            <?php if (is_array($zone) && isset($zone['name'])) : ?>
+                                <label>
+                                    <input type="checkbox" name="jbc_allowed_zones[]" value="<?php echo esc_attr($index); ?>" <?php checked(in_array($index, $allowed_zones)); ?>>
+                                    <?php echo esc_html($zone['name']); ?>
+                                </label>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                 </p>
             <?php else : ?>
-                <p><?php _e('No placement zones defined for this category ##ff0000category.', 'just-beautiful-customizer'); ?></p>
+                <p><?php _e('No placement zones defined for this category.', 'just-beautiful-customizer'); ?></p>
             <?php endif; ?>
         </div>
     </div>
