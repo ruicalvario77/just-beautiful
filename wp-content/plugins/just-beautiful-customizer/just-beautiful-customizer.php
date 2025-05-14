@@ -512,7 +512,9 @@ function jbc_customization_tab_content() {
                 <label for="jbc_enable_customization"><?php _e('Enable Customization', 'just-beautiful-customizer'); ?></label>
                 <input type="checkbox" id="jbc_enable_customization" name="jbc_enable_customization" value="1" <?php checked($enable_customization, '1'); ?>>
             </p>
+            <?php
             echo '<pre>Category Zones: '; print_r($category_zones); echo '</pre>';
+            ?>
             <?php if (!empty($category_zones)) : ?>
                 <p class="form-field">
                     <label><?php _e('Allowed Placement Zones', 'just-beautiful-customizer'); ?></label>
