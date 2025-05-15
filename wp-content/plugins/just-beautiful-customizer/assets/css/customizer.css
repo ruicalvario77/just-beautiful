@@ -102,3 +102,10 @@
     max-height: 100%;
     object-fit: contain;
 }
+
+#jbc-image-preview img {
+    max-width: 100px;  /* Limits the width to 100 pixels */
+    max-height: 100px; /* Limits the height to 100 pixels */
+    object-fit: contain; /* Ensures the image scales properly without distortion */
+    margin-top: 10px;  /* Adds a little spacing above the thumbnail */
+}
