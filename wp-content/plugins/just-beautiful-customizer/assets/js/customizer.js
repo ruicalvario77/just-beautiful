@@ -73,4 +73,43 @@ jQuery(document).ready(function($) {
     } else {
         $('.jbc-placement-selection').hide();
     }
+
+    // Load Google Fonts
+    if (jbcSettings.fonts && jbcSettings.fonts.length > 0) {
+        WebFont.load({
+            google: {
+                families: jbcSettings.fonts
+            }
+        });
+    }
+
+    // Populate font dropdown with styled options
+    jbcSettings.fonts.forEach(function(font) {
+        var option = $('<option>').val(font).text(font).css('font-family', font);
+        $('#jbc-font-select').append(option);
+    });
+
+    // Set initial font and color
+    $('#jbc-font-select').val(jbcSettings.fonts[0]);
+    $('#jbc-text-input').css('font-family', jbcSettings.fonts[0]);
+    var initialColor = $('#jbc-color-picker').val();
+    $('#jbc-text-input').css('color', initialColor);
+
+    // Character counter
+    var maxLength = 50;
+    $('#jbc-text-input').on('input', function() {
+        var remaining = maxLength - $(this).val().length;
+        $('#jbc-char-count').text(remaining + ' characters left');
+    });
+    $('#jbc-char-count').text(maxLength + ' characters left');
+
+    // Font and color change handlers
+    $('#jbc-font-select').on('change', function() {
+        var selectedFont = $(this).val();
+        $('#jbc-text-input').css('font-family', selectedFont);
+    });
+    $('#jbc-color-picker').on('input', function() {
+        var selectedColor = $(this).val();
+        $('#jbc-text-input').css('color', selectedColor);
+    });
 });

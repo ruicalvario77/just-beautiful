@@ -602,19 +602,26 @@ function jbc_add_customize_button() {
         $image_id = $product->get_image_id();
         $image_src = $image_id ? wp_get_attachment_image_src($image_id, 'full')[0] : wc_placeholder_img_src();
 
+        // Define available Google Fonts
+        $fonts = ['Roboto', 'Open Sans', 'Lato', 'Montserrat', 'Playfair Display', 'Oswald'];
+
         // Enqueue media uploader scripts
         wp_enqueue_media();
+
+        // Enqueue WebFont Loader for dynamic font loading
+        wp_enqueue_script('webfont-loader', 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js', array(), '1.6.26', true);
 
         // Enqueue assets
         wp_enqueue_style('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/css/customizer.css', array(), '1.0');
         wp_enqueue_script('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/js/customizer.js', array('jquery'), '1.0', true);
 
-        // Localize script with settings
+        // Localize script with settings, including fonts
         wp_localize_script('jbc-customizer', 'jbcSettings', [
             'allow_image' => (bool) $allow_image,
             'allow_text' => (bool) $allow_text,
             'allowed_zones' => $allowed_zones,
             'product_id' => $product->get_id(),
+            'fonts' => $fonts,
         ]);
 
         // Output the Customize button
@@ -628,11 +635,14 @@ function jbc_add_customize_button() {
         echo '<div class="jbc-image-upload" style="display:none;">';
         echo '<h3>Upload Image</h3>';
         echo '<button type="button" id="jbc-upload-image">Upload Image</button>';
-        echo '<div id="jbc-image-preview"></div>'; // Preview area for the uploaded image
+        echo '<div id="jbc-image-preview"></div>';
         echo '</div>';
         echo '<div class="jbc-text-input" style="display:none;">';
         echo '<h3>Enter Text</h3>';
-        echo '<input type="text" placeholder="Your custom text">';
+        echo '<input type="text" id="jbc-text-input" placeholder="Your custom text" maxlength="50">';
+        echo '<span id="jbc-char-count">50 characters left</span>';
+        echo '<select id="jbc-font-select"></select>';
+        echo '<input type="color" id="jbc-color-picker" value="#000000">';
         echo '</div>';
         echo '<div class="jbc-placement-selection">';
         echo '<h3>Select Placement</h3>';
