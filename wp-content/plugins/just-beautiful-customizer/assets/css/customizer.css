@@ -1,16 +1,20 @@
+/* customizer.css */
+
+/* Full-screen overlay */
 .jbc-customize-popup {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.5); /* Subtle dark overlay */
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 9999;
 }
 
+/* Main content area */
 .jbc-popup-content {
     position: relative;
     background: white;
@@ -20,8 +24,10 @@
     flex-direction: row;
     max-width: 900px;
     width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
 }
 
+/* Close button styling */
 .jbc-close-button {
     position: absolute;
     top: 10px;
@@ -29,17 +35,27 @@
     background: none;
     border: none;
     font-size: 20px;
+    font-weight: bold;
     cursor: pointer;
+    color: #333;
 }
 
+.jbc-close-button:hover {
+    color: #ff0000; /* Red on hover */
+}
+
+/* Tools section */
 .jbc-tools {
     flex: 1;
-    padding-right: 20px;
+    padding: 15px;
+    background: #f5f5f5; /* Light gray background */
+    border-right: 1px solid #ddd; /* Separator */
 }
 
 .jbc-tools h3 {
     margin-top: 0;
     font-size: 16px;
+    color: #333;
 }
 
 .jbc-tools button,
@@ -47,19 +63,28 @@
 .jbc-tools select {
     width: 100%;
     margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
 }
 
+/* Preview section */
 .jbc-preview {
     flex: 2;
-    background: #f0f0f0;
+    padding: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    background: #fff;
+    border: 1px solid #ddd; /* Subtle border */
+    border-radius: 5px;
+    margin-left: 20px;
 }
 
 .jbc-preview h3 {
     margin-top: 0;
     font-size: 16px;
+    color: #333;
 }
 
 #jbc-preview-area {
@@ -67,6 +92,9 @@
     width: 100%;
     height: 400px;
     overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #jbc-preview-area img {
