@@ -602,6 +602,9 @@ function jbc_add_customize_button() {
         $image_id = $product->get_image_id();
         $image_src = $image_id ? wp_get_attachment_image_src($image_id, 'full')[0] : wc_placeholder_img_src();
 
+        // Enqueue media uploader scripts
+        wp_enqueue_media();
+
         // Enqueue assets
         wp_enqueue_style('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/css/customizer.css', array(), '1.0');
         wp_enqueue_script('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/js/customizer.js', array('jquery'), '1.0', true);
@@ -624,7 +627,8 @@ function jbc_add_customize_button() {
         echo '<div class="jbc-tools">';
         echo '<div class="jbc-image-upload" style="display:none;">';
         echo '<h3>Upload Image</h3>';
-        echo '<button type="button">Upload Image</button>';
+        echo '<button type="button" id="jbc-upload-image">Upload Image</button>';
+        echo '<div id="jbc-image-preview"></div>'; // Preview area for the uploaded image
         echo '</div>';
         echo '<div class="jbc-text-input" style="display:none;">';
         echo '<h3>Enter Text</h3>';

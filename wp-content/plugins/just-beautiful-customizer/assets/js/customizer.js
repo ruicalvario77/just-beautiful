@@ -10,6 +10,44 @@ jQuery(document).ready(function($) {
         $('#jbc-customization-popup').hide();
     });
 
+    // Image upload functionality
+    var mediaUploader;
+    $('#jbc-upload-image').on('click', function(e) {
+        e.preventDefault();
+        if (mediaUploader) {
+            mediaUploader.open();
+            return;
+        }
+        mediaUploader = wp.media({
+            title: 'Upload Image',
+            button: {
+                text: 'Use this image'
+            },
+            multiple: false // Single image upload only
+        }).on('select', function() {
+            var attachment = mediaUploader.state().get('selection').first().toJSON();
+            
+            // Validate file type (PNG or JPG only)
+            if (attachment.mime !== 'image/png' && attachment.mime !== 'image/jpeg') {
+                alert('Please upload a PNG or JPG image.');
+                return;
+            }
+            
+            // Validate file size (<5MB, i.e., 5 * 1024 * 1024 bytes)
+            if (attachment.size > 5 * 1024 * 1024) {
+                alert('Image must be less than 5MB.');
+                return;
+            }
+            
+            // Display the image preview
+            $('#jbc-image-preview').html('<img src="' + attachment.url + '" style="max-width: 100%;">');
+            
+            // Optionally store the image URL or ID for later use (e.g., in live preview)
+            console.log('Uploaded Image URL:', attachment.url);
+            console.log('Uploaded Image ID:', attachment.id);
+        }).open();
+    });
+
     // Hide popup when clicking outside the content
     $('#jbc-customization-popup').on('click', function(event) {
         if (event.target === this) {
