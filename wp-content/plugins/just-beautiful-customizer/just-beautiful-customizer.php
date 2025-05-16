@@ -106,12 +106,22 @@ function jbc_create_customization_page() {
 
         if (!empty($_POST['jbc_zone_name'])) {
             foreach ($_POST['jbc_zone_name'] as $index => $name) {
+                // Assign values to variables for clarity
+                $x = absint($_POST['jbc_zone_x'][$index]);
+                $y = absint($_POST['jbc_zone_y'][$index]);
+                $width = absint($_POST['jbc_zone_width'][$index]);
+                $height = absint($_POST['jbc_zone_height'][$index]);
+
+                // NEW: Ensure width and height are at least 1
+                $width = max(1, $width);
+                $height = max(1, $height);
+
                 $zones[] = [
                     'name' => sanitize_text_field($name),
-                    'x' => absint($_POST['jbc_zone_x'][$index]),
-                    'y' => absint($_POST['jbc_zone_y'][$index]),
-                    'width' => absint($_POST['jbc_zone_width'][$index]),
-                    'height' => absint($_POST['jbc_zone_height'][$index]),
+                    'x' => $x,
+                    'y' => $y,
+                    'width' => $width,
+                    'height' => $height,
                 ];
             }
         }
@@ -166,12 +176,22 @@ function jbc_edit_customization_page() {
 
         if (!empty($_POST['jbc_zone_name'])) {
             foreach ($_POST['jbc_zone_name'] as $index => $name) {
+                // Assign values to variables for clarity
+                $x = absint($_POST['jbc_zone_x'][$index]);
+                $y = absint($_POST['jbc_zone_y'][$index]);
+                $width = absint($_POST['jbc_zone_width'][$index]);
+                $height = absint($_POST['jbc_zone_height'][$index]);
+
+                // Ensure width and height are at least 1
+                $width = max(1, $width);
+                $height = max(1, $height);
+
                 $zones[] = [
                     'name' => sanitize_text_field($name),
-                    'x' => absint($_POST['jbc_zone_x'][$index]),
-                    'y' => absint($_POST['jbc_zone_y'][$index]),
-                    'width' => absint($_POST['jbc_zone_width'][$index]),
-                    'height' => absint($_POST['jbc_zone_height'][$index]),
+                    'x' => $x,
+                    'y' => $y,
+                    'width' => $width,
+                    'height' => $height,
                 ];
             }
         }
@@ -296,7 +316,7 @@ function jbc_display_create_form() {
             const zonesDiv = document.getElementById('jbc_zones');
             const index = zonesDiv.children.length;
             zonesDiv.innerHTML += `
-                <div class="zone" style="margin-bottom: 10px;">
+                <div class="jbc-zone-fields">
                     <label>Name: <input type="text" name="jbc_zone_name[${index}]" required></label>
                     <label>X: <input type="number" name="jbc_zone_x[${index}]" min="0" required></label>
                     <label>Y: <input type="number" name="jbc_zone_y[${index}]" min="0" required></label>
@@ -357,7 +377,7 @@ function jbc_display_edit_form($category_id) {
                     <p class="description">Define areas on the product where customizations can be applied.</p>
                     <div id="jbc_zones">
                         <?php foreach ($zones as $index => $zone) : ?>
-                            <div class="zone" style="margin-bottom: 10px;">
+                            <div class="jbc-zone-fields">
                                 <label>Name: <input type="text" name="jbc_zone_name[<?php echo $index; ?>]" value="<?php echo esc_attr($zone['name']); ?>" required></label>
                                 <label>X: <input type="number" name="jbc_zone_x[<?php echo $index; ?>]" value="<?php echo esc_attr($zone['x']); ?>" min="0" required></label>
                                 <label>Y: <input type="number" name="jbc_zone_y[<?php echo $index; ?>]" value="<?php echo esc_attr($zone['y']); ?>" min="0" required></label>
