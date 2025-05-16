@@ -338,6 +338,8 @@ function jbc_display_create_form() {
         function removeZone() {
             this.parentElement.remove();
         }
+
+        attachRemoveListeners();
     </script>
     <?php
 }
@@ -424,6 +426,8 @@ function jbc_display_edit_form($category_id) {
         function removeZone() {
             this.parentElement.remove();
         }
+
+        attachRemoveListeners();
     </script>
     <?php
 }
