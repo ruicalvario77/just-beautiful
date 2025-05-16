@@ -49,6 +49,7 @@ jQuery(document).ready(function($) {
             if (currentPlacement) {
                 customizations[currentPlacement] = customizations[currentPlacement] || {};
                 customizations[currentPlacement].image = { url: attachment.url, id: attachment.id };
+                console.log('After image upload:', customizations[currentPlacement]);
                 updatePreview();
             }
         }).open();
@@ -114,6 +115,7 @@ jQuery(document).ready(function($) {
         if (currentPlacement) {
             customizations[currentPlacement] = customizations[currentPlacement] || {};
             customizations[currentPlacement].text = $(this).val();
+            console.log('After text input:', customizations[currentPlacement]);
             updatePreview();
         }
     });
@@ -170,6 +172,7 @@ jQuery(document).ready(function($) {
 
     // Update preview function
     function updatePreview() {
+        console.log('Customizations:', customizations);
         var container = $('#jbc-overlay-container');
         container.empty(); // Clear existing overlays
 
@@ -198,6 +201,7 @@ jQuery(document).ready(function($) {
 
                         var cust = customizations[placement];
                         if (cust.image) {
+                            console.log('Adding image for', placement);
                             var img = $('<img>').attr('src', cust.image.url).css({
                                 width: '100%',
                                 height: '100%',
@@ -206,6 +210,7 @@ jQuery(document).ready(function($) {
                             overlayDiv.append(img);
                         }
                         if (cust.text) {
+                            console.log('Adding text for', placement, ':', cust.text);
                             var textDiv = $('<div>').text(cust.text).css({
                                 fontFamily: cust.font,
                                 color: cust.color,
