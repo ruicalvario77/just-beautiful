@@ -542,9 +542,19 @@ function jbc_customization_tab_content() {
             border: 1px solid #ddd;
             background: #f9f9f9;
         }
+        .jbc-coordinate-fields div {
+            margin-bottom: 15px;
+        }
         .jbc-coordinate-fields label {
             display: block;
+            font-weight: bold;
             margin-bottom: 5px;
+        }
+        .jbc-coordinate-fields input {
+            width: 100px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
         }
     </style>
     <div id="jbc_customization_data" class="panel woocommerce_options_panel">
@@ -579,10 +589,34 @@ function jbc_customization_tab_content() {
                                     </label>
                                     <!-- Coordinate fields for this zone -->
                                     <div class="jbc-coordinate-fields">
-                                        <label>Image X: <input type="number" name="jbc_image_x[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($product_zones[$index]['image_x'] ?? ''); ?>" min="0"></label>
-                                        <label>Image Y: <input type="number" name="jbc_image_y[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($product_zones[$index]['image_y'] ?? ''); ?>" min="0"></label>
-                                        <label>Text X: <input type="number" name="jbc_text_x[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($product_zones[$index]['text_x'] ?? ''); ?>" min="0"></label>
-                                        <label>Text Y: <input type="number" name="jbc_text_y[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($product_zones[$index]['text_y'] ?? ''); ?>" min="0"></label>
+                                        <div>
+                                            <label for="jbc_image_x_<?php echo esc_attr($index); ?>">Image X:</label>
+                                            <input type="number" id="jbc_image_x_<?php echo esc_attr($index); ?>" 
+                                                   name="jbc_image_x[<?php echo esc_attr($index); ?>]" 
+                                                   value="<?php echo esc_attr($product_zones[$index]['image_x'] ?? ''); ?>" 
+                                                   min="0">
+                                        </div>
+                                        <div>
+                                            <label for="jbc_image_y_<?php echo esc_attr($index); ?>">Image Y:</label>
+                                            <input type="number" id="jbc_image_y_<?php echo esc_attr($index); ?>" 
+                                                   name="jbc_image_y[<?php echo esc_attr($index); ?>]" 
+                                                   value="<?php echo esc_attr($product_zones[$index]['image_y'] ?? ''); ?>" 
+                                                   min="0">
+                                        </div>
+                                        <div>
+                                            <label for="jbc_text_x_<?php echo esc_attr($index); ?>">Text X:</label>
+                                            <input type="number" id="jbc_text_x_<?php echo esc_attr($index); ?>" 
+                                                   name="jbc_text_x[<?php echo esc_attr($index); ?>]" 
+                                                   value="<?php echo esc_attr($product_zones[$index]['text_x'] ?? ''); ?>" 
+                                                   min="0">
+                                        </div>
+                                        <div>
+                                            <label for="jbc_text_y_<?php echo esc_attr($index); ?>">Text Y:</label>
+                                            <input type="number" id="jbc_text_y_<?php echo esc_attr($index); ?>" 
+                                                   name="jbc_text_y[<?php echo esc_attr($index); ?>]" 
+                                                   value="<?php echo esc_attr($product_zones[$index]['text_y'] ?? ''); ?>" 
+                                                   min="0">
+                                        </div>
                                     </div>
                                 </div>
                             <?php endif; ?>
