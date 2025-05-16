@@ -184,52 +184,71 @@ jQuery(document).ready(function($) {
             for (var placement in customizations) {
                 if (customizations.hasOwnProperty(placement)) {
                     var zone = jbcSettings.zones[placement];
-                    if (zone) {
-                        var leftPc = (zone.x / nw) * 100;
-                        var topPc = (zone.y / nh) * 100;
-                        var widthPc = (zone.width / nw) * 100;
-                        var heightPc = (zone.height / nh) * 100;
+                    var productZone = jbcSettings.product_zones[placement] || {};
 
-                        var overlayDiv = $('<div>').css({
-                            position: 'absolute',
-                            left: leftPc + '%',
-                            top: topPc + '%',
-                            width: widthPc + '%',
-                            height: heightPc + '%',
-                            overflow: 'hidden',
-                            display: 'flex',              // Center contents
-                            flexDirection: 'column',      // Stack image and text vertically
-                            justifyContent: 'center',     // Center vertically
-                            alignItems: 'center'          // Center horizontally
-                        });
+                    if (zone) {
+                        // Use product-specific coordinates if available, else fall back to category zones
+                        var imageX = productZone.image_x !== undefined ? productZone.image_x : zone.x;
+                        var imageY = productZone.image_y !== undefined ? productZone.image_y : zone.y;
+                        var textX = productZone.text_x !== undefined ? productZone.text_x : zone.x;
+                        var textY = productZone.text_y !== undefined ? productZone.text_y : zone.y;
 
                         var cust = customizations[placement];
+
+                        // Image overlay
                         if (cust.image) {
-                            console.log('Adding image for', placement);
+                            var imgLeftPc = (imageX / nw) * 100;
+                            var imgTopPc = (imageY / nh) * 100;
+                            var widthPc = (zone.width / nw) * 100;
+                            var heightPc = (zone.height / nh) * 100;
+
+                            var imgDiv = $('<div>').css({
+                                position: 'absolute',
+                                left: imgLeftPc + '%',
+                                top: imgTopPc + '%',
+                                width: widthPc + '%',
+                                height: heightPc + '%',
+                                overflow: 'hidden'
+                            });
                             var img = $('<img>').attr('src', cust.image.url).css({
                                 width: '100%',
                                 height: '100%',
                                 objectFit: 'contain'
                             });
-                            overlayDiv.append(img);
-                        }
-                        if (cust.text) {
-                            console.log('Adding text for', placement, ':', cust.text);
-                            var textDiv = $('<div>').text(cust.text).css({
-                                fontFamily: cust.font || 'Arial',
-                                color: cust.color || '#000000',
-                                fontSize: '20px',
-                                whiteSpace: 'nowrap',
-                                background: 'rgba(255, 255, 255, 0.5)', // Semi-transparent background
-                                padding: '5px',
-                                border: '1px solid #000',                // Border for visibility
-                                position: 'relative',
-                                zIndex: 10                               // Ensure text is above image
-                            });
-                            overlayDiv.append(textDiv);
+                            imgDiv.append(img);
+                            container.append(imgDiv);
                         }
 
-                        container.append(overlayDiv);
+                        // Text overlay
+                        if (cust.text) {
+                            var textLeftPc = (textX / nw) * 100;
+                            var textTopPc = (textY / nh) * 100;
+                            var widthPc = (zone.width / nw) * 100;
+                            var heightPc = (zone.height / nh) * 100;
+
+                            var textDiv = $('<div>').css({
+                                position: 'absolute',
+                                left: textLeftPc + '%',
+                                top: textTopPc + '%',
+                                width: widthPc + '%',
+                                height: heightPc + '%',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }).append(
+                                $('<span>').text(cust.text).css({
+                                    fontFamily: cust.font || 'Arial',
+                                    color: cust.color || '#000000',
+                                    fontSize: '20px',
+                                    whiteSpace: 'nowrap',
+                                    background: 'rgba(255, 255, 255, 0.5)',
+                                    padding: '5px',
+                                    border: '1px solid #000'
+                                })
+                            );
+                            container.append(textDiv);
+                        }
                     }
                 }
             }

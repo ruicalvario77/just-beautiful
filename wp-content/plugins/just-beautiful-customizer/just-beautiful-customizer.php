@@ -519,6 +519,7 @@ function jbc_customization_tab_content() {
 
     $enable_customization = get_post_meta($product_id, '_jbc_enable_customization', true);
     $allowed_zones = get_post_meta($product_id, '_jbc_allowed_zones', true) ?: [];
+    $product_zones = get_post_meta($product_id, '_jbc_product_zones', true) ?: [];
 
     ?>
     <style>
@@ -534,6 +535,16 @@ function jbc_customization_tab_content() {
         }
         .jbc-zone-wrapper input[type="checkbox"] {
             margin-right: 5px;
+        }
+        .jbc-coordinate-fields {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+        }
+        .jbc-coordinate-fields label {
+            display: block;
+            margin-bottom: 5px;
         }
     </style>
     <div id="jbc_customization_data" class="panel woocommerce_options_panel">
@@ -566,6 +577,13 @@ function jbc_customization_tab_content() {
                                     <label for="jbc_zone_<?php echo esc_attr($index); ?>">
                                         <?php echo esc_html($zone['name']); ?>
                                     </label>
+                                    <!-- Coordinate fields for this zone -->
+                                    <div class="jbc-coordinate-fields">
+                                        <label>Image X: <input type="number" name="jbc_image_x[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($product_zones[$index]['image_x'] ?? ''); ?>" min="0"></label>
+                                        <label>Image Y: <input type="number" name="jbc_image_y[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($product_zones[$index]['image_y'] ?? ''); ?>" min="0"></label>
+                                        <label>Text X: <input type="number" name="jbc_text_x[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($product_zones[$index]['text_x'] ?? ''); ?>" min="0"></label>
+                                        <label>Text Y: <input type="number" name="jbc_text_y[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($product_zones[$index]['text_y'] ?? ''); ?>" min="0"></label>
+                                    </div>
                                 </div>
                             <?php endif; ?>
                         <?php endforeach; ?>
@@ -589,6 +607,20 @@ function jbc_save_customization_tab_data($post_id) {
 
     $allowed_zones = isset($_POST['jbc_allowed_zones']) ? array_map('intval', $_POST['jbc_allowed_zones']) : [];
     update_post_meta($post_id, '_jbc_allowed_zones', $allowed_zones);
+
+    // Save per-product coordinates
+    $product_zones = [];
+    if (!empty($allowed_zones)) {
+        foreach ($allowed_zones as $zone_index) {
+            $product_zones[$zone_index] = [
+                'image_x' => absint($_POST['jbc_image_x'][$zone_index] ?? 0),
+                'image_y' => absint($_POST['jbc_image_y'][$zone_index] ?? 0),
+                'text_x' => absint($_POST['jbc_text_x'][$zone_index] ?? 0),
+                'text_y' => absint($_POST['jbc_text_y'][$zone_index] ?? 0),
+            ];
+        }
+    }
+    update_post_meta($post_id, '_jbc_product_zones', $product_zones);
 }
 add_action('woocommerce_process_product_meta', 'jbc_save_customization_tab_data');
 
@@ -648,13 +680,15 @@ function jbc_add_customize_button() {
         wp_enqueue_script('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/js/customizer.js', array('jquery'), '1.0', true);
 
         // Localize script with settings, including zones and fonts
+        $product_zones = get_post_meta($product->get_id(), '_jbc_product_zones', true) ?: [];
         wp_localize_script('jbc-customizer', 'jbcSettings', [
             'allow_image' => (bool) $allow_image,
             'allow_text' => (bool) $allow_text,
             'allowed_zones' => $allowed_zones,
             'product_id' => $product->get_id(),
             'fonts' => $fonts,
-            'zones' => $zones_data // Pass zone coordinates
+            'zones' => $zones_data,
+            'product_zones' => $product_zones // Pass product-specific coordinates
         ]);
 
         // Output the Customize button
