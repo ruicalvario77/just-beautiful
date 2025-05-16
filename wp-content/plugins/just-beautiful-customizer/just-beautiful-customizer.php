@@ -592,9 +592,17 @@ function jbc_add_customize_button() {
         // Get allowed zones for the product
         $allowed_zones_indices = get_post_meta($product->get_id(), '_jbc_allowed_zones', true) ?: [];
         $allowed_zones = [];
+        $zones_data = []; // Store zone coordinates for JavaScript
         foreach ($allowed_zones_indices as $index) {
             if (isset($category_zones[$index]['name'])) {
-                $allowed_zones[] = $category_zones[$index]['name'];
+                $zone = $category_zones[$index];
+                $allowed_zones[] = $zone['name'];
+                $zones_data[$zone['name']] = [
+                    'x' => $zone['x'],
+                    'y' => $zone['y'],
+                    'width' => $zone['width'],
+                    'height' => $zone['height']
+                ];
             }
         }
 
@@ -615,19 +623,20 @@ function jbc_add_customize_button() {
         wp_enqueue_style('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/css/customizer.css', array(), '1.0');
         wp_enqueue_script('jbc-customizer', plugin_dir_url(__FILE__) . 'assets/js/customizer.js', array('jquery'), '1.0', true);
 
-        // Localize script with settings, including fonts
+        // Localize script with settings, including zones and fonts
         wp_localize_script('jbc-customizer', 'jbcSettings', [
             'allow_image' => (bool) $allow_image,
             'allow_text' => (bool) $allow_text,
             'allowed_zones' => $allowed_zones,
             'product_id' => $product->get_id(),
             'fonts' => $fonts,
+            'zones' => $zones_data // Pass zone coordinates
         ]);
 
         // Output the Customize button
         echo '<button type="button" id="jbc-customize-button" class="button" data-product-id="' . esc_attr($product->get_id()) . '">Customize</button>';
 
-        // Output the enhanced popup HTML
+        // Output the enhanced popup HTML with updated preview structure
         echo '<div id="jbc-customization-popup" class="jbc-customize-popup" style="display:none;">';
         echo '<div class="jbc-popup-content">';
         echo '<button class="jbc-close-button">X</button>';
@@ -652,7 +661,10 @@ function jbc_add_customize_button() {
         echo '<div class="jbc-preview">';
         echo '<h3>Preview</h3>';
         echo '<div id="jbc-preview-area">';
-        echo '<img src="' . esc_url($image_src) . '" alt="Product Preview">';
+        echo '<div id="jbc-image-wrapper" style="position: relative; display: inline-block;">';
+        echo '<img id="jbc-base-image" src="' . esc_url($image_src) . '" alt="Product Preview" style="display: block;">';
+        echo '<div id="jbc-overlay-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>';
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
