@@ -196,7 +196,11 @@ jQuery(document).ready(function($) {
                             top: topPc + '%',
                             width: widthPc + '%',
                             height: heightPc + '%',
-                            overflow: 'hidden'
+                            overflow: 'hidden',
+                            display: 'flex',              // Center contents
+                            flexDirection: 'column',      // Stack image and text vertically
+                            justifyContent: 'center',     // Center vertically
+                            alignItems: 'center'          // Center horizontally
                         });
 
                         var cust = customizations[placement];
@@ -212,10 +216,15 @@ jQuery(document).ready(function($) {
                         if (cust.text) {
                             console.log('Adding text for', placement, ':', cust.text);
                             var textDiv = $('<div>').text(cust.text).css({
-                                fontFamily: cust.font,
-                                color: cust.color,
-                                fontSize: '20px', // Adjustable
-                                whiteSpace: 'nowrap'
+                                fontFamily: cust.font || 'Arial',
+                                color: cust.color || '#000000',
+                                fontSize: '20px',
+                                whiteSpace: 'nowrap',
+                                background: 'rgba(255, 255, 255, 0.5)', // Semi-transparent background
+                                padding: '5px',
+                                border: '1px solid #000',                // Border for visibility
+                                position: 'relative',
+                                zIndex: 10                               // Ensure text is above image
                             });
                             overlayDiv.append(textDiv);
                         }
